@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { editFileName, imageFileFilter } from "src/config/multer.config";
-import { AuthDTO } from "./dto/auth.dto";
+import { AuthDTO, SignInDTO } from "./dto/auth.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -12,7 +12,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async signIn(@Body() signInDto: Record<string, any>) {
+  async signIn(@Body() signInDto: SignInDTO) {
     const accessToken = await this.authService.signIn(signInDto.email, signInDto.password);
     return { accessToken };
   }
