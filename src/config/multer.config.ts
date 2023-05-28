@@ -9,6 +9,13 @@ export const imageFileFilter = (req: Request, file: Express.Multer.File, callbac
     callback(null, true);
 };
 
+export const pdfFileFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
+    if (!file.originalname.match(/\.(pdf)$/)) {
+      return callback(null, false);
+    }
+    callback(null, true);
+};
+
 export const editFileName = (req: Request, file: Express.Multer.File, callback: (...args: any) => any) => {
     const fileExtName = extname(file.originalname);
     const name = Date.now();
