@@ -29,7 +29,12 @@ export class UsersService {
                 email,
                 password: pwdHash,
                 bio,
-                pictureFilePath
+                pictureFilePath,
+                roles: {
+                    create: {
+                        type: "REGULAR"
+                    }
+                }
             }
         });
         return user;
