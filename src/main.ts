@@ -11,7 +11,8 @@ async function bootstrap() {
     exceptionFactory: (errors: ValidationError[]) => {
       const errorMessage = errors.map(error => Object.values(error.constraints)).join(', ');
       return new UnprocessableEntityException(errorMessage);
-    }
+    },
+    transform: true
   }));
   app.useGlobalFilters(new ApiExceptionFilter());
   await app.listen(3000);
