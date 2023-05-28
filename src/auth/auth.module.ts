@@ -4,6 +4,8 @@ import { AuthService } from "./auth.service";
 import { JwtModule } from "@nestjs/jwt";
 import { UsersModule } from "src/users/users.module";
 import { FileSystemModule } from "src/file-system/file-system.module";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthGuard } from "./auth.guard";
 
 @Module({
     imports: [
@@ -16,7 +18,13 @@ import { FileSystemModule } from "src/file-system/file-system.module";
         FileSystemModule
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [
+        AuthService,
+        {
+            provide: APP_GUARD,
+            useClass: AuthGuard
+        }
+    ],
     exports: [AuthService]
 })
 export class AuthModule {}
