@@ -3,6 +3,7 @@ import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, pdfFileFilter } from "src/config/multer.config";
 import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
+import { TransformFormDataPipe } from "./books-form-data.pipe";
 
 @Controller('books')
 export class BooksController {
@@ -17,15 +18,14 @@ export class BooksController {
     )
     async createBook(
         @Request() request,
-        @Body() dto: BookDTO,
+        @Body(new TransformFormDataPipe(), new ValidationPipe()) dto: BookDTO,
         @UploadedFiles() files: {
-            cover: Array<Express.Multer.File>,
-            file: Array<Express.Multer.File>
+            cover: Express.Multer.File[];
+            file: Express.Multer.File[];
         }
     ) {
         const coverFilePath = files.cover[0].filename;
         const filePath = files.file[0].filename;
-
         return this.service.uploadBook({...dto, uploadedById: request.user.sub, coverFilePath, filePath});
     }
 }
