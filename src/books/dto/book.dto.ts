@@ -1,9 +1,7 @@
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString, Length, IsInt, IsEnum, IsArray, ArrayNotEmpty } from "class-validator";
 
-enum Visibility {
-    PUBLIC,
-    PRIVATE
-}
+type Visibility = "PUBLIC" | "PRIVATE";
 
 export class BookDTO {
     @IsString()
@@ -21,20 +19,11 @@ export class BookDTO {
     @Length(10, 10000)
     notes: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @Length(1, 30)
-    filePath: string;
-    
-    @IsString()
-    @IsNotEmpty()
-    @Length(1, 30)
-    coverFilePath: string;
-
+    @Transform(obj => Number(obj.value))
     @IsInt()
     pages: number;
 
-    @IsEnum(Visibility)
+    @IsEnum([ "PUBLIC", "PRIVATE" ])
     visibility: Visibility;
 
     @IsArray()
