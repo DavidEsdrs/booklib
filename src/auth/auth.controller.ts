@@ -5,11 +5,13 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { editFileName, imageFileFilter } from "src/config/multer.config";
 import { AuthDTO, SignInDTO } from "./dto/auth.dto";
+import { Public } from "src/decorators/public.decorator";
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(@Body() signInDto: SignInDTO) {
@@ -17,6 +19,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @Public()
   @Post("signup")
   @UseInterceptors(
     FileInterceptor("picture", {
