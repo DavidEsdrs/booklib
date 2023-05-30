@@ -1,5 +1,5 @@
 
-import { Body, Controller, Post, HttpCode, HttpStatus, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UseInterceptors, UploadedFile, UnprocessableEntityException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
@@ -34,6 +34,10 @@ export class AuthController {
     @Body() signUpDto: AuthDTO,
     @UploadedFile() file: Express.Multer.File
   ) {
+    // TODO: This check should be in another place (in a pipe, maybe?)
+    if(!file) {
+      throw new UnprocessableEntityException("There is no file attached to this request!");
+    }
     return this.authService.signUp({
         username: signUpDto.username,
         email: signUpDto.email,
