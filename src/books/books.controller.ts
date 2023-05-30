@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, pdfFileFilter } from "src/config/multer.config";
@@ -27,5 +27,13 @@ export class BooksController {
         const coverFilePath = files.cover[0].filename;
         const filePath = files.file[0].filename;
         return this.service.uploadBook({...dto, uploadedById: request.user.sub, coverFilePath, filePath});
+    }
+
+    @Get(":id")
+    async getBook(
+        @Request() request,
+        @Param("id") id: number
+    ) {
+        return this.service.getBook({ id, requesterId: request.user });
     }
 }
