@@ -8,4 +8,10 @@ export class FileSystemService {
         const filePath = path.resolve(__dirname, "..", "..", "uploads", ...pathJoin, fileName);
         return fs.promises.unlink(filePath);
     }
+
+    async createReadStream(fileName: string, pathJoin: string[]) {
+        const filePath = path.resolve(__dirname, "..", "..", "uploads", ...pathJoin, fileName);
+        const readStream = fs.createReadStream(filePath);
+        return readStream;
+    }
 }
