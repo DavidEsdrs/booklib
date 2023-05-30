@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, Request, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, pdfFileFilter } from "src/config/multer.config";
 import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
 import { TransformFormDataPipe } from "./books-form-data.pipe";
+import { Readable } from "node:stream";
+import { Public } from "src/decorators/public.decorator";
 
 @Controller('books')
 export class BooksController {
@@ -35,5 +37,20 @@ export class BooksController {
         @Param("id") id: number
     ) {
         return this.service.getBook({ id, requesterId: request.user });
+    }
+
+    @Public()
+    @Get(":id/content")
+    async getBookContent(
+        @Request() request,
+        @Response({ passthrough: true }) res,
+        @Param("id") id: number,
+    ) {
+        const { book, stream } = await this.service.getBookContent({ id, requesterId: request.user?.id });
+        res.set({
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `inline; filename="${book.filePath}.pdf"`
+        });
+        return new StreamableFile(stream);
     }
 }

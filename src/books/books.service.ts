@@ -3,10 +3,11 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { BookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
 import { UnauthorizedError } from "type-graphql";
+import { FileSystemService } from "src/file-system/file-system.service";
 
 @Injectable()
 export class BooksService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService, private fileSystemService: FileSystemService) {}
 
     async uploadBook({ 
         title, 
@@ -52,4 +53,12 @@ export class BooksService {
     }
 
     private canAccessBook = (book: Book, requesterId: number) => book.visibility === "PUBLIC" || book.uploadedById === requesterId;
+
+    async getBookContent({ id, requesterId }: { id: number, requesterId: number }) {
+        const book = await this.prisma.book.findFirst({
+            where: { id }
+        });
+        const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
+        return { book, stream };
+    }
 }
