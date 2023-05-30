@@ -9,8 +9,8 @@ export const imageFileFilter = (req: Request, file: Express.Multer.File, callbac
     callback(null, true);
 };
 
-export const pdfFileFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
-    if (!file.originalname.match(/\.(pdf)$/)) {
+export const ebookFileFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
+    if (!file.originalname.match(/\.(pdf|epub)$/)) {
       return callback(null, false);
     }
     callback(null, true);
