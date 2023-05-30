@@ -46,9 +46,9 @@ export class BooksController {
         @Response({ passthrough: true }) res,
         @Param("id") id: number,
     ) {
-        const { book, stream } = await this.service.getBookContent({ id, requesterId: request.user?.id });
+        const { book, stream, contentType } = await this.service.getBookContent({ id, requesterId: request.user?.id });
         res.set({
-            "Content-Type": "application/pdf",
+            "Content-Type": contentType,
             "Content-Disposition": `inline; filename="${book.filePath}.pdf"`
         });
         return new StreamableFile(stream);

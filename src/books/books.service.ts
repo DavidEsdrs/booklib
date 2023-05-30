@@ -59,6 +59,9 @@ export class BooksService {
             where: { id }
         });
         const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
-        return { book, stream };
+        return { book, stream, contentType: this.getContentType(book) };
     }
+
+    // TODO: get content type by a more reliable process (as epub should be 'application/epub+zip')
+    private getContentType = (book: Book) => `application/${book.filePath.split('.').pop()}`
 }
