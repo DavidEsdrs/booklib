@@ -51,7 +51,5 @@ export class BooksService {
         return book;
     }
 
-    private canAccessBook(book: Book, requesterId: number) {
-        return book.visibility === "PUBLIC" || book.uploadedById === requesterId;
-    }
+    private canAccessBook = (book: Book, requesterId: number) => book.visibility === "PUBLIC" || book.uploadedById === requesterId;
 }
