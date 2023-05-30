@@ -49,7 +49,7 @@ export class BooksController {
         const { book, stream, contentType } = await this.service.getBookContent({ id, requesterId: request.user?.id });
         res.set({
             "Content-Type": contentType,
-            "Content-Disposition": `inline; filename="${book.filePath}.pdf"`
+            "Content-Disposition": `inline; filename="${book.filePath}"`
         });
         return new StreamableFile(stream);
     }
