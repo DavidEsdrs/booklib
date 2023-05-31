@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { BookDTO } from "./dto/book.dto";
+import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, Put, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { BookDTO, UpdateBookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
 import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
@@ -67,5 +67,24 @@ export class BooksController {
         @Request() request
     ) {
         return this.service.deleteBook({ book, requesterId: request.user.sub });
+    }
+
+    @Put(":id")
+    @UseInterceptors(
+        new FilesFieldsInterceptor([
+            { dest: "./uploads/books/cover", field: "cover", fileFilter: imageFileFilter },
+            { dest: "./uploads/books/content", field: "file", fileFilter: ebookFileFilter }
+        ])
+    )
+    async updateBook(
+        @Body() dto: UpdateBookDTO,
+        @BookInstance("id") book: Book,
+        @Request() request,
+        @UploadedFiles() { cover, file }: {
+            cover: Express.Multer.File[];
+            file: Express.Multer.File[];
+        }
+    ) {
+        return this.service.updateBook({ dto, book, requesterId: request.user.sub, cover, file });
     }
 }

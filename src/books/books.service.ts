@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from "src/prisma/prisma.service";
-import { BookDTO } from "./dto/book.dto";
+import { BookDTO, UpdateBookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
 import { UnauthorizedError } from "type-graphql";
 import { FileSystemService } from "src/file-system/file-system.service";
@@ -90,4 +90,60 @@ export class BooksService {
 
         await Promise.all([deleteContentFilePromise, deleteCoverFilePromise]);
     }
+
+    async updateBook({ dto, book, requesterId, cover, file }: { dto: UpdateBookDTO, book: Book, requesterId: number, cover: Express.Multer.File[], file: Express.Multer.File[] }) {
+        if(book.uploadedById !== requesterId) {
+            throw new ForbiddenException();
+        }
+
+        const updateQuery = await this.mountUpdateQuery(book, file, cover);
+
+        await this.prisma.book.update({
+            where: { id: book.id },
+            data: {
+                ...dto,
+                ...updateQuery
+            }
+        });
+    }
+
+    private async mountUpdateQuery(book: Book, file: Express.Multer.File[], cover: Express.Multer.File[]) {
+        // Is this a antipattern (In nestjs context)?
+        class UpdateQuery {
+            query: { coverFilePath?: string, filePath?: string };
+
+            constructor() {
+                this.query = {};
+            }
+        
+            cover(coverFilePath: string) {
+                this.query.coverFilePath = coverFilePath;
+                return this;
+            }
+        
+            file(filePath: string) {
+                this.query.filePath = filePath;
+                return this;
+            }
+        
+            build() {
+                return this.query;
+            }
+        }
+
+        const updateQuery = new UpdateQuery();
+
+        if (Array.isArray(cover) && cover.length > 0) {
+            await this.fileSystemService.deleteFile(book.coverFilePath, ["books", "cover"]);
+            updateQuery.cover(cover[0].filename);
+        }
+    
+        if (Array.isArray(file) && file.length > 0) {
+            await this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
+            updateQuery.file(file[0].filename);
+        }
+
+        return updateQuery.build();
+    }
 }
+
