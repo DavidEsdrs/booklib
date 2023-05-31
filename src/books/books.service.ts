@@ -70,11 +70,11 @@ export class BooksService {
             throw new UnauthorizedException();
         }
         const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
-        return { book, stream, contentType: this.getContentType(book) };
+        return { book, stream, contentType: this.getContentType(book.filePath) };
     }
 
     // TODO: get content type by a more reliable process (as epub should be 'application/epub+zip')
-    private getContentType = (book: Book) => `application/${book.filePath.split('.').pop()}`
+    private getContentType = (path: string) => `${path.split('.').pop()}`
 
     async deleteBook({ book, requesterId }: { book: Book, requesterId: number }) {
         if(book.uploadedById !== requesterId) {
@@ -144,6 +144,15 @@ export class BooksService {
         }
 
         return updateQuery.build();
+    }
+
+    async getBookCover({ book, requesterId }: { book: Book, requesterId: number }) {
+        if(!this.canAccessBook(book, requesterId)) {
+            throw new UnauthorizedException();
+        }
+        const readStream = await this.fileSystemService.createReadStream(book.coverFilePath, ["books", "cover"]);
+        const contentType = this.getContentType(book.coverFilePath);
+        return { readStream, contentType };
     }
 }
 

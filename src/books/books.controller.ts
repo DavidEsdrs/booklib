@@ -53,7 +53,7 @@ export class BooksController {
     ) {
         const { book, stream, contentType } = await this.service.getBookContent({ id, requesterId: request.user.sub });
         res.set({
-            "Content-Type": contentType,
+            "Content-Type": `application/${contentType}`,
             "Content-Disposition": `inline; filename="${book.filePath}"`
         });
         this.logger.log(`Read stream created for file: ${book.filePath} - Ready for streaming`);
@@ -86,5 +86,19 @@ export class BooksController {
         }
     ) {
         return this.service.updateBook({ dto, book, requesterId: request.user.sub, cover, file });
+    }
+
+    @Get(":id/cover")
+    async getBookCover(
+        @BookInstance("id") book: Book,
+        @Request() request,
+        @Response({ passthrough: true }) response
+    ) {
+        const { readStream, contentType } = await this.service.getBookCover({ book, requesterId: request.user.sub });
+        response.set({
+            "Content-Type": `image/${contentType}`,
+            "Content-Disposition": `inline; filename="${book.coverFilePath}"`
+        });
+        return new StreamableFile(readStream);
     }
 }
