@@ -29,6 +29,7 @@ export class LibraryService {
                 createdById
             }
         });
+        this.logger.log(`Created new library - requester:${createdById}`);
         return library;
     }
 
