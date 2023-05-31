@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, Put, Requ
 import { BookDTO, UpdateBookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
-import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
+import { FilesFieldsInterceptor } from "src/common/interceptors/fileName.interceptor";
 import { TransformFormDataPipe } from "./books-form-data.pipe";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { Book } from "@prisma/client";
