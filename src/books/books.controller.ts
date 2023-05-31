@@ -42,7 +42,7 @@ export class BooksController {
         @Request() request,
         @Param("id") id: number
     ) {
-        return this.service.getBook({ id, requesterId: request.user });
+        return this.service.getBook({ id, requesterId: request.user.sub });
     }
 
     @Get(":id/content")
