@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from "src/prisma/prisma.service";
 import { BookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
@@ -7,7 +7,11 @@ import { FileSystemService } from "src/file-system/file-system.service";
 
 @Injectable()
 export class BooksService {
-    constructor(private prisma: PrismaService, private fileSystemService: FileSystemService) {}
+    logger: any;
+
+    constructor(private prisma: PrismaService, private fileSystemService: FileSystemService) {
+        this.logger = new Logger();
+    }
 
     async uploadBook({ 
         title, 
@@ -35,6 +39,7 @@ export class BooksService {
                 visibility
             }
         });
+        this.logger.log(`Book created: Requester ${uploadedById}`)
         return book;
     }
 
