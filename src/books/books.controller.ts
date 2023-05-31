@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
@@ -6,6 +6,8 @@ import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
 import { TransformFormDataPipe } from "./books-form-data.pipe";
 import { Readable } from "node:stream";
 import { Public } from "src/decorators/public.decorator";
+import { BookInstance } from "src/common/decorators/book.decorator";
+import { Book } from "@prisma/client";
 
 @Controller('books')
 export class BooksController {
@@ -56,5 +58,14 @@ export class BooksController {
         });
         this.logger.log(`Read stream created for file: ${book.filePath} - Ready for streaming`);
         return new StreamableFile(stream);
+    }
+
+    @Delete(":id")
+    @HttpCode(204)
+    async deleteBook(
+        @BookInstance("id") book: Book,
+        @Request() request
+    ) {
+        return this.service.deleteBook({ book, requesterId: request.user.sub });
     }
 }

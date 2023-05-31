@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from "src/prisma/prisma.service";
 import { BookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
@@ -75,4 +75,19 @@ export class BooksService {
 
     // TODO: get content type by a more reliable process (as epub should be 'application/epub+zip')
     private getContentType = (book: Book) => `application/${book.filePath.split('.').pop()}`
+
+    async deleteBook({ book, requesterId }: { book: Book, requesterId: number }) {
+        if(book.uploadedById !== requesterId) {
+            throw new ForbiddenException();
+        }
+
+        await this.prisma.book.delete({
+            where: { id: book.id }
+        });
+
+        const deleteContentFilePromise = this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
+        const deleteCoverFilePromise = this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
+
+        await Promise.all([deleteContentFilePromise, deleteCoverFilePromise]);
+    }
 }
