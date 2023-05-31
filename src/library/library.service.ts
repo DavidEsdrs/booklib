@@ -82,4 +82,22 @@ export class LibraryService {
         return false;
     }
     
+    async getBooksFromLibrary({ libraryId, requesterId }: { libraryId: number, requesterId: number }) {
+        const library = await this.prisma.library.findUnique({
+            where: { id: libraryId },
+            include: {
+                books: {
+                    select: {
+                        book: true
+                    }
+                }
+            }
+        });
+        if(!this.canAccessLibrary(library, requesterId)) {
+            throw new UnauthorizedException();
+        }
+        return library.books.map(bookRel => bookRel.book);
+    }
+
+    private canAccessLibrary = (library: Library, requesterId: number) => library.visibility === "PUBLIC" || library.createdById === requesterId;
 }

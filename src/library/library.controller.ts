@@ -1,10 +1,9 @@
-import { Body, Controller, HttpCode, Param, Post, Request, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Request, UseInterceptors } from '@nestjs/common';
 import { LibraryService } from "./library.service";
-import { BookIdToObjectPipe } from "src/common/pipes/bookIdToObject.pipe";
-import { LibraryIdToObjectPipe } from "src/common/pipes/libraryIdToObject.pipe";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { LibraryInstance } from "src/common/decorators/library.decorator";
 import { Book, Library } from "@prisma/client";
+import { BindUrlInterceptor } from "../common/interceptors/bind-url.interceptor";
 
 @Controller('library')
 export class LibraryController {
@@ -35,5 +34,14 @@ export class LibraryController {
             library,
             requesterId: request.user.id
         });
+    }
+
+    @Get(":id")
+    @UseInterceptors(BindUrlInterceptor)
+    async getBooksFromLibrary(
+        @Param("id") libraryId: number,
+        @Request() request
+    ) {
+        return this.service.getBooksFromLibrary({ libraryId, requesterId: request.user.sub });
     }
 }
