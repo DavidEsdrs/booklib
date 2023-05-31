@@ -4,8 +4,6 @@ import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
 import { FilesFieldsInterceptor } from "src/interceptors/fileName.interceptor";
 import { TransformFormDataPipe } from "./books-form-data.pipe";
-import { Readable } from "node:stream";
-import { Public } from "src/decorators/public.decorator";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { Book } from "@prisma/client";
 
