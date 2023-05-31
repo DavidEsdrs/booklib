@@ -29,5 +29,39 @@ export class BookDTO {
     @IsArray()
     @ArrayNotEmpty()
     @Length(3, 15, { each: true })
+    @Transform(({ value }) => {
+        if(!Array.isArray(value)) {
+            return [value];
+        }
+        return value;
+    })
     genders: string[];
+}
+
+export class UpdateBookDTO {
+    @IsString()
+    @IsNotEmpty()
+    @Length(1, 255)
+    @IsOptional()
+    title: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @Length(3, 255)
+    @IsOptional()
+    synopsis: string;
+
+    @IsString()
+    @Length(10, 10000)
+    @IsOptional()
+    notes: string;
+
+    @Transform(obj => Number(obj.value))
+    @IsOptional()
+    @IsInt()
+    pages: number;
+
+    @IsEnum([ "PUBLIC", "PRIVATE" ])
+    @IsOptional()
+    visibility: Visibility;
 }
