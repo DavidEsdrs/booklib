@@ -50,7 +50,7 @@ export class BooksController {
         @Response({ passthrough: true }) res,
         @Param("id") id: number,
     ) {
-        const { book, stream, contentType } = await this.service.getBookContent({ id, requesterId: request.user?.id });
+        const { book, stream, contentType } = await this.service.getBookContent({ id, requesterId: request.user.sub });
         res.set({
             "Content-Type": contentType,
             "Content-Disposition": `inline; filename="${book.filePath}"`
