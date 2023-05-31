@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
@@ -9,7 +9,11 @@ import { Public } from "src/decorators/public.decorator";
 
 @Controller('books')
 export class BooksController {
-    constructor(private service: BooksService) {}
+    logger: any;
+
+    constructor(private service: BooksService) {
+        this.logger = new Logger();
+    }
 
     @Post()
     @UseInterceptors(
@@ -51,6 +55,7 @@ export class BooksController {
             "Content-Type": contentType,
             "Content-Disposition": `inline; filename="${book.filePath}"`
         });
+        this.logger.log(`Read stream created for file: ${book.filePath} - Ready for streaming`);
         return new StreamableFile(stream);
     }
 }
