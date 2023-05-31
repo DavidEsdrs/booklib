@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { FileSystemModule } from './file-system/file-system.module';
 import { BooksModule } from './books/books.module';
 import { LibraryModule } from './library/library.module';
+import { ReviewsModule } from "./reviews/reviews.module";
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { LibraryModule } from './library/library.module';
     AuthModule, 
     FileSystemModule, 
     BooksModule, 
-    LibraryModule
+    LibraryModule,
+    ReviewsModule
   ],
   controllers: [],
   providers: []
