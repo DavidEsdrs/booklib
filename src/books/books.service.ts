@@ -86,7 +86,7 @@ export class BooksService {
         });
 
         const deleteContentFilePromise = this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
-        const deleteCoverFilePromise = this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
+        const deleteCoverFilePromise = this.fileSystemService.deleteFile(book.coverFilePath, ["books", "content"]);
 
         await Promise.all([deleteContentFilePromise, deleteCoverFilePromise]);
     }
