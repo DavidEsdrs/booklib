@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from "src/prisma/prisma.service";
 import { BookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
@@ -60,9 +60,12 @@ export class BooksService {
     private canAccessBook = (book: Book, requesterId: number) => book.visibility === "PUBLIC" || book.uploadedById === requesterId;
 
     async getBookContent({ id, requesterId }: { id: number, requesterId: number }) {
-        const book = await this.prisma.book.findFirst({
+        const book = await this.prisma.book.findUnique({
             where: { id }
         });
+        if(!book) {
+            throw new NotFoundException();
+        }
         const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
         return { book, stream, contentType: this.getContentType(book) };
     }
