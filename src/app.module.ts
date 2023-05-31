@@ -4,7 +4,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from "./auth/auth.module";
 import { FileSystemModule } from './file-system/file-system.module';
 import { BooksModule } from './books/books.module';
-import { LibraryModule } from './bookshelf/library.module';
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [
