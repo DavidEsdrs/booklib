@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from "src/prisma/prisma.service";
 import { BookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
@@ -65,6 +65,9 @@ export class BooksService {
         });
         if(!book) {
             throw new NotFoundException();
+        }
+        if(!this.canAccessBook(book, requesterId)) {
+            throw new UnauthorizedException();
         }
         const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
         return { book, stream, contentType: this.getContentType(book) };
