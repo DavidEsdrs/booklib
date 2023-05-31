@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, Post, Request, Response, StreamableFile, UploadedFiles, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BookDTO } from "./dto/book.dto";
 import { BooksService } from "./books.service";
 import { imageFileFilter, ebookFileFilter } from "src/config/multer.config";
@@ -43,7 +43,6 @@ export class BooksController {
         return this.service.getBook({ id, requesterId: request.user });
     }
 
-    @Public()
     @Get(":id/content")
     async getBookContent(
         @Request() request,
