@@ -23,4 +23,29 @@ export class ReviewsService {
 
         return review;
     }
+
+    async getReviewsFromBook({ book, requesterId }: { book: Book, requesterId: number }) {
+        if(!this.canAccessBook(book, requesterId)) {
+            throw new UnauthorizedException();
+        }
+
+        const reviews = await this.prisma.review.findMany({
+            where: {
+                bookId: book.id
+            }, 
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        username: true
+                    }
+                }
+            }
+        });
+
+        return reviews;
+    }
+
+    private canAccessBook = (book: Book, requesterId: number) => book.visibility === "PUBLIC" || book.uploadedById === requesterId;
 }

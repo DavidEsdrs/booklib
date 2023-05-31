@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { ReviewDTO } from "./dto/review.dto";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { Book } from "@prisma/client";
@@ -15,5 +15,13 @@ export class ReviewsController {
         @Request() request
     ) {
         return this.service.createReview({ dto, book, requesterId: request.user.sub });
+    }
+
+    @Get()
+    async getReviewsFromBook(
+        @BookInstance("bookId") book: Book,
+        @Request() request
+    ) {
+        return this.service.getReviewsFromBook({ book, requesterId: request.user.sub });
     }
 }
