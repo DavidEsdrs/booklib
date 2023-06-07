@@ -45,6 +45,19 @@ export class BooksService {
         return book;
     }
 
+    async getBooks({ requester_id }: { requester_id: number }) {    
+        const books = await this.prisma.book.findMany({
+            where: {
+                visibility: "PUBLIC",
+                NOT: {
+                    uploadedById: requester_id
+                }
+            }
+        });
+        this.logger.log(`Requester ${requester_id}: Get books`);
+        return books;
+    }
+
     async getBook({ id, requesterId }: { id: number, requesterId: number}) {
         const book = await this.prisma.book.findFirst({
             where: { id },

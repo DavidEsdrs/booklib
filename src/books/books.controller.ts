@@ -6,6 +6,7 @@ import { FilesFieldsInterceptor } from "src/common/interceptors/fileName.interce
 import { TransformFormDataPipe } from "./books-form-data.pipe";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { Book } from "@prisma/client";
+import { Public } from "src/decorators/public.decorator";
 
 @Controller('books')
 export class BooksController {
@@ -13,6 +14,13 @@ export class BooksController {
 
     constructor(private service: BooksService) {
         this.logger = new Logger();
+    }
+
+    @Get()
+    async getBooks(
+        @Request() request
+    ) {
+        return this.service.getBooks({ requester_id: request.user?.sub });
     }
 
     @Post()
