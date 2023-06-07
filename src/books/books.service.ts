@@ -4,6 +4,8 @@ import { BookDTO, UpdateBookDTO } from "./dto/book.dto";
 import { Book } from "@prisma/client";
 import { UnauthorizedError } from "type-graphql";
 import { FileSystemService } from "src/file-system/file-system.service";
+import { IsNotEmpty } from "class-validator";
+import { IntersectionType } from "@nestjs/graphql";
 
 @Injectable()
 export class BooksService {
@@ -39,7 +41,7 @@ export class BooksService {
                 visibility
             }
         });
-        this.logger.log(`Book created: Requester ${uploadedById}`)
+        this.logger.log(`Book created: Requester ${uploadedById}`);
         return book;
     }
 
@@ -52,8 +54,10 @@ export class BooksService {
             }
         });
         if(!this.canAccessBook(book, requesterId)) {
+            this.logger.log(`Requester ${requesterId}: Couldn't get book ${book.id}`);
             throw new UnauthorizedError();
         }
+        this.logger.log(`Requester ${requesterId}: Get book ${book.id}`);
         return book;
     }
 
@@ -64,12 +68,15 @@ export class BooksService {
             where: { id }
         });
         if(!book) {
+            this.logger.log(`Requester ${requesterId}: Couldn't get book ${book.id} - Book doesn't exist`);
             throw new NotFoundException();
         }
         if(!this.canAccessBook(book, requesterId)) {
+            this.logger.log(`Requester ${requesterId}: Couldn't get book ${book.id} - Requester doesn't have access`);
             throw new UnauthorizedException();
         }
         const stream = await this.fileSystemService.createReadStream(book.filePath, ["books", "content"]);
+        this.logger.log(`Requester ${requesterId}: Get book ${book.id}`);
         return { book, stream, contentType: this.getContentType(book.filePath) };
     }
 
@@ -78,6 +85,7 @@ export class BooksService {
 
     async deleteBook({ book, requesterId }: { book: Book, requesterId: number }) {
         if(book.uploadedById !== requesterId) {
+            this.logger.log(`Requester ${requesterId}: Couldn't delete book ${book.id} - Requester doesn't have access`);
             throw new ForbiddenException();
         }
 
@@ -88,11 +96,13 @@ export class BooksService {
         const deleteContentFilePromise = this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
         const deleteCoverFilePromise = this.fileSystemService.deleteFile(book.coverFilePath, ["books", "cover"]);
 
+        this.logger.log(`Requester ${requesterId}: ${book.id} deleted`);
         await Promise.all([deleteContentFilePromise, deleteCoverFilePromise]);
     }
 
     async updateBook({ dto, book, requesterId, cover, file }: { dto: UpdateBookDTO, book: Book, requesterId: number, cover: Express.Multer.File[], file: Express.Multer.File[] }) {
         if(book.uploadedById !== requesterId) {
+            this.logger.log(`Requester ${requesterId}: Couldn't update book ${book.id} - Requester doesn't have access`);
             throw new ForbiddenException();
         }
 
@@ -105,6 +115,8 @@ export class BooksService {
                 ...updateQuery
             }
         });
+
+        this.logger.log(`Requester ${requesterId}: ${book.id} updated`);
     }
 
     private async mountUpdateQuery(book: Book, file: Express.Multer.File[], cover: Express.Multer.File[]) {
@@ -136,11 +148,13 @@ export class BooksService {
         if (Array.isArray(cover) && cover.length > 0) {
             await this.fileSystemService.deleteFile(book.coverFilePath, ["books", "cover"]);
             updateQuery.cover(cover[0].filename);
+            this.logger.log(`File cover ${book.coverFilePath} of book ${book.id} deleted`)
         }
-    
+        
         if (Array.isArray(file) && file.length > 0) {
             await this.fileSystemService.deleteFile(book.filePath, ["books", "content"]);
             updateQuery.file(file[0].filename);
+            this.logger.log(`File content ${book.filePath} of book ${book.id} deleted`)
         }
 
         return updateQuery.build();
@@ -148,11 +162,12 @@ export class BooksService {
 
     async getBookCover({ book, requesterId }: { book: Book, requesterId: number }) {
         if(!this.canAccessBook(book, requesterId)) {
+            this.logger.log(`Requester ${requesterId}: Couldn't get book ${book.id} cover - Requester doesn't have access`);
             throw new UnauthorizedException();
         }
         const readStream = await this.fileSystemService.createReadStream(book.coverFilePath, ["books", "cover"]);
         const contentType = this.getContentType(book.coverFilePath);
+        this.logger.log(`Requester ${requesterId}: Get book ${book.id} cover`);
         return { readStream, contentType };
     }
 }
-
