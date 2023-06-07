@@ -3,6 +3,13 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "src/users/users.service";
 import { verify } from "argon2";
 import { FileSystemService } from "src/file-system/file-system.service";
+import ms from "ms";
+
+export interface Authentication {
+    accessToken: string;
+    user: { id: number, name: string, email: string };
+    expiresIn: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -12,7 +19,7 @@ export class AuthService {
         private fsService: FileSystemService
     ) {}
 
-    async signIn(email: string, password: string) {
+    async signIn(email: string, password: string): Promise<Authentication> {
         const user = await this.usersService.findByEmail(email);
         if(!user) {
             throw new UnauthorizedException();
@@ -23,7 +30,7 @@ export class AuthService {
         }
         const payload = { sub: user.id, email: user.email };
         const accessToken = await this.jwtService.signAsync(payload);
-        return accessToken;
+        return { accessToken, user: { id: user.id, name: user.username, email: user.email }, expiresIn: ms(process.env.JWT_SECRET_LIFESPAN) };
     }
 
     async signUp(args: {

@@ -1,6 +1,6 @@
 
 import { Body, Controller, Post, HttpCode, HttpStatus, UseInterceptors, UploadedFile, UnprocessableEntityException } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService, Authentication } from './auth.service';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { editFileName, imageFileFilter } from "src/config/multer.config";
@@ -14,9 +14,9 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async signIn(@Body() signInDto: SignInDTO) {
-    const accessToken = await this.authService.signIn(signInDto.email, signInDto.password);
-    return { accessToken };
+  async signIn(@Body() signInDto: SignInDTO): Promise<Authentication> {
+    const authentication = await this.authService.signIn(signInDto.email, signInDto.password);
+    return authentication;
   }
 
   @Public()
