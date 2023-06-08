@@ -53,6 +53,6 @@ yarn start:dev
 
 7. Enjoy!
 
-# TODO
+## TODO
 - Tests
-- Swagger documantation
+- Swagger documentation
