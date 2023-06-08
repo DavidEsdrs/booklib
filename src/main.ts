@@ -5,6 +5,7 @@ import { ApiExceptionFilter } from "./lib/errorHandler.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
@@ -15,6 +16,6 @@ async function bootstrap() {
     transform: true
   }));
   app.useGlobalFilters(new ApiExceptionFilter());
-  await app.listen(3000);
+  await app.listen(process.env.SERVER_PORT || 3001);
 }
 bootstrap();
