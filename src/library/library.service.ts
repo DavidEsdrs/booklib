@@ -16,6 +16,9 @@ export class LibraryService {
                 id: libraryId
             }
         });
+        if(!library) {
+            throw new NotFoundException();
+        }
         if(!this.canAccessLibrary(library, requesterId)) {
             throw new UnauthorizedException();
         }
