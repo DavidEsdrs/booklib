@@ -9,6 +9,14 @@ import { BindUrlInterceptor } from "../common/interceptors/bind-url.interceptor"
 export class LibraryController {
     constructor(private service: LibraryService) {}
 
+    @Get(":id")
+    async getLibrary(
+        @Param("id") libraryId: number,
+        @Request() request
+    ) {
+        return this.service.getLibrary({ libraryId, requesterId: request.user.sub })
+    }
+
     @Post()
     async createLibrary(
         @Body() { name, description, visibility }: any,
@@ -36,7 +44,7 @@ export class LibraryController {
         });
     }
 
-    @Get(":id")
+    @Get(":id/books")
     @UseInterceptors(BindUrlInterceptor)
     async getBooksFromLibrary(
         @Param("id") libraryId: number,
