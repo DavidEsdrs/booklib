@@ -45,6 +45,23 @@ export class LibraryService {
         return library;
     }
 
+    async deleteLibrary({ requesterId, libraryId }: { requesterId: number, libraryId: number }) {
+        const library = await this.prisma.library.findUnique({
+            where: {
+                id: libraryId
+            }
+        });
+        if(!library) {
+            throw new NotFoundException();
+        }
+        if(library.createdById !== requesterId) {
+            throw new UnauthorizedException();
+        }
+        await this.prisma.library.delete({
+            where: { id: libraryId }
+        });
+    }
+
 
     async addBookToLibrary({
         library,

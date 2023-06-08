@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Request, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Request, UseInterceptors } from '@nestjs/common';
 import { LibraryService } from "./library.service";
 import { BookInstance } from "src/common/decorators/book.decorator";
 import { LibraryInstance } from "src/common/decorators/library.decorator";
@@ -28,6 +28,15 @@ export class LibraryController {
             visibility,
             createdById: request.user.sub
         });
+    }
+
+    @Delete(":id")
+    @HttpCode(204)
+    async deleteLibrary(
+        @Param("id") libraryId: number,
+        @Request() request
+    ) {
+        await this.service.deleteLibrary({ libraryId, requesterId: request.user.sub });
     }
 
     @Post(":id/books/:bookId")
